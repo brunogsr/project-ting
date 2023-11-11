@@ -1,26 +1,32 @@
 import sys
+import os
 from ting_file_management.file_management import txt_importer
+from ting_file_management.queue import Queue
 
 
-def process(path_file, instance):
-    try:
-        processed_files = {item["nome_do_arquivo"] for item in instance.queue}
-        if path_file not in processed_files:
-            lines = txt_importer(path_file)
-            if lines is not None:
-                file_data = {
-                    "nome_do_arquivo": path_file,
-                    "qtd_linhas": len(lines),
-                    "linhas_do_arquivo": lines,
-                }
-                instance.enqueue(file_data)
-                print(file_data)
-    except Exception as e:
-        print(f"Erro ao processar o arquivo: {e}", file=sys.stderr)
+def process(path_file, instance: Queue):
+    for index in range(len(instance)):
+        file = instance.search(index)
+        if file["nome_do_arquivo"] == path_file:
+            print("Arquivo já processado", file=sys.stderr)
+            return
+
+    if not os.path.exists(path_file):
+        print("Arquivo não encontrado", file=sys.stderr)
+        return
+
+    file_lines = txt_importer(path_file)
+    file = {
+        "nome_do_arquivo": path_file,
+        "qtd_linhas": len(file_lines),
+        "linhas_do_arquivo": file_lines,
+    }
+    instance.enqueue(file)
+    print(file, file=sys.stdout)
 
 
 def remove(instance):
-    if not instance:
+    if not instance.queue:
         print("Não há elementos")
     else:
         file_data = instance.dequeue()
