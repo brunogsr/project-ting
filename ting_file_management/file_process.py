@@ -16,7 +16,7 @@ def process(path_file, instance):
                 instance.enqueue(file_data)
                 print(file_data)
     except Exception as e:
-        print(f"Erro ao processar o arquivo: {e}")
+        print(f"Erro ao processar o arquivo: {e}", file=sys.stderr)
 
 
 def remove(instance):
@@ -29,9 +29,8 @@ def remove(instance):
 
 
 def file_metadata(instance, position):
-    if position < 0 or position >= len(instance):
+    if position < 0 or position >= len(instance.queue):
         print("Posição inválida", file=sys.stderr)
     else:
         file_data = instance.search(position)
         print(file_data)
-# push
